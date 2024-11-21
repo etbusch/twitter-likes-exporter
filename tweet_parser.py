@@ -62,5 +62,10 @@ class TweetParser():
             self._media_urls = []
             media_entries = self.key_data["legacy"]["entities"].get("media", [])
             for entry in media_entries:
-                self._media_urls.append(entry["media_url_https"])
+                if entry["type"] == "video":
+                    print("video: " + str(entry))
+                    self._media_urls.append(entry["video_info"]["variants"][-1]["url"])
+                else:
+                    self._media_urls.append(entry["media_url_https"])
+
         return self._media_urls

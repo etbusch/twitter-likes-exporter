@@ -50,13 +50,17 @@ class ParseTweetsJSONtoHTML():
             output_html += "<div class='tweet_images_wrapper'>"
             for media_url in tweet_data["tweet_media_urls"]:
                 if self.download_images:
-                    media_name = media_url.split("/")[-1]
+                    media_name = media_url.split("/")[-1].split("?")[0]
                     user_image_path = f'images/tweets/{media_name}'
                     full_path = Path(self.output_html_directory, user_image_path)
                     self.save_remote_image(media_url, full_path)
                 else:
                     user_image_path = media_url
-                output_html += f"<div class='tweet_image'><a href='{user_image_path}' target='_blank'><img loading='lazy' src='{user_image_path}'></a></div>"
+
+                if ".mp4" not in user_image_path:
+                    output_html += f"<div class='tweet_image'><a href='{user_image_path}' target='_blank'><img loading='lazy' src='{user_image_path}'></a></div>"
+                else:
+                    output_html += f"<div class='tweet_image'><video controls src='{user_image_path}'></video></div>"
             output_html += "</div>\n"
 
 
@@ -88,7 +92,7 @@ class ParseTweetsJSONtoHTML():
     def save_remote_image(self, remote_url, local_path):
         if os.path.exists(local_path):
             return
-        print(f"Downloading image {remote_url}...")
+        print(f"Downloading image {remote_url} to {local_path}")
         img_data = requests.get(remote_url).content
         local_path.parent.mkdir(parents=True, exist_ok=True)
         with local_path.open('wb') as handler:
